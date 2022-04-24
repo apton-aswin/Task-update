@@ -1,0 +1,54 @@
+resources:
+# The repo with our Dockerfile
+- name: concourse
+  type: git
+  icon: github
+  source:
+    uri: https://github.com/aswin-apton/concourse-Ci.git
+    branch: master
+
+# Where we will push the image to
+- name: simple-image
+  type: registry-image
+  icon: docker
+  source:
+    repository: ((image-repo-name))
+    username: ((registry-username))
+    password: ((registry-password))
+
+
+jobs:
+- name: build-and-push
+  plan:
+  # fetch repository source (containing Dockerfile)
+  - get: concourse
+
+  # build using `oci-build` task
+  #
+  # note: this task config could be pushed into `my-image-src` and loaded using
+  # `file:` instead
+  - task: build
+    privileged: true
+    config:
+      platform: linux
+
+      image_resource:
+        type: registry-image
+        source:
+          repository: concourse/oci-build-task
+
+      inputs:
+      - name: concourse
+        path: .
+
+      outputs:
+      - name: image
+
+      run:
+        path: build
+
+  # push using `registry-image` resource
+  - put: simple-image
+    params: 
+      version: v2
+      image: image/image.tar
