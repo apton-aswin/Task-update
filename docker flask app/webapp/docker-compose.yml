@@ -1,0 +1,19 @@
+version: "3"
+services: 
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+      
+  mysql:
+        build:
+            context: ../db
+
+        environment:
+
+         - MYSQL_DATABASE=userdb
+         - MYSQL_USER=riyaz
+         - MYSQL_PASSWORD=password
+         - MYSQL_ROOT_PASSWORD=password
+        ports:
+            - "3306"
