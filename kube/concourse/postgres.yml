@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+  labels:
+    app: concourse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: concourse
+  template:
+    metadata:
+      labels:
+        app: concourse
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:latest
+        ports:
+        - containerPort: 1433
+        env:
+        - name: CONCOURSE_POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: concourse-secret
+              key: concoursedb-user
+        - name: CONCOURSE_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: concoursedb-user
+              key: concoursedb-password
+        - name: POSTGRES_DB
+          value: concourse 
+        - name: PGDATA
+          value: /database
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: concourse-service
+spec:
+  selector:
+    app: concourse
+  ports:
+    - protocol: TCP
+      port: 1433
+      targetPort: 1433

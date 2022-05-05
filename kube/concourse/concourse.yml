@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: concourse-deployment
+  labels:
+    app: concourse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: concourse
+  template:
+    metadata:
+      labels:
+        app: concourse
+    spec:
+      containers:
+      - name: concourse
+        image: concourse/concourse 
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USER_NAME
+          valueFrom:
+            secretKeyRef:
+              name: concoursedb-user
+              key: concoursedb-user
+        - name: USER_PWD
+          valueFrom:
+            secretKeyRef:
+              name: concoursedb-secret
+              key: concoursedb-password 
+        - name: CONCOURSE_ADD_LOCAL_USER
+          value: test:test
+        - name: CONCOURSE_CLIENT_SECRET
+          value: Y29uY291cnNlLXdlYgo=
+        - name: CONCOURSE_CLUSTER_NAME
+          value: tutorial
+        - name: CONCOURSE_CONTENT_SECURITY_POLICY
+          value: '*'
+        - name: CONCOURSE_EXTERNAL_URL
+          value: http://localhost:8080
+        - name: CONCOURSE_MAIN_TEAM_LOCAL_USER
+          value: test
+        - name: CONCOURSE_POSTGRES_DATABASE
+          value: concourse
+        - name: CONCOURSE_POSTGRES_HOST
+          value: concourse-db
+        - name: CONCOURSE_POSTGRES_PASSWORD
+          value: concourse_pass
+        - name: CONCOURSE_POSTGRES_USER
+          value: concourse_user
+        - name: CONCOURSE_TSA_CLIENT_SECRET
+          value: Y29uY291cnNlLXdvcmtlcgo=
+        - name: CONCOURSE_WORKER_BAGGAGECLAIM_DRIVER
+          value: overlay
+        - name: CONCOURSE_WORKER_CONTAINERD_DNS_SERVER
+          value: 8.8.8.8
+        - name: CONCOURSE_WORKER_RUNTIME
+          value: containerd
+        - name: CONCOURSE_X_FRAME_OPTIONS
+          value: allow
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: concourse-service
+spec:
+  type: NodePort
+  selector:
+    app: concourse
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 32740
