@@ -1,0 +1,24 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: my-job-id
+  namespace: k8-space
+  labels:
+    job_name: my-job-id
+spec:
+  template:
+    metadata:
+      labels:
+        app: my-job-pod-id
+      name: my-job-pod-id
+    spec:
+      containers:
+        - image: "python:latest"
+          imagePullPolicy: Never
+          name: "hello"
+          command:
+            - python3
+            - -u
+            - ./hello.py
+      restartPolicy: Never
