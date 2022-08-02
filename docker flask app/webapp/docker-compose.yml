@@ -12,7 +12,7 @@ services:
         environment:
 
          - MYSQL_DATABASE=userdb
-         - MYSQL_USER=riyaz
+         - MYSQL_USER=aswin
          - MYSQL_PASSWORD=password
          - MYSQL_ROOT_PASSWORD=password
         ports:
